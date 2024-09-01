@@ -1,4 +1,5 @@
 .navbar {
+  background: linear-gradient(360deg, #7ec3e6, #e1ffea22 80%);
   display: flex;
   justify-content: space-around;
   padding: 16px;
@@ -31,6 +32,16 @@
   gap: 3px;
   cursor: pointer;
 }
+
+.nav-menu li a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.nav-menu li a:hover {
+  color: #ff4141;
+}
+
 .nav-menu hr {
   border: none;
   width: 80%;
