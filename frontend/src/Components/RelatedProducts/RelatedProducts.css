@@ -1,0 +1,26 @@
+.relatedproducts {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    height: 90vh;
+}
+
+.relatedproducts h1 {
+    color: #171717; /* Fixed the color syntax */
+    font-size: 50px;
+    font-weight: 600;
+}
+
+.relatedproducts hr {
+    width: 200px; /* Corrected '20Øpx' to '200px' */
+    height: 6px;
+    border-radius: 1px; /* Fixed 'lepx' to '1px' */
+    background: #252525; /* Fixed the syntax and property name */
+    border: none; /* Ensure no border is displayed */
+}
+.relatedproducts-item{
+    margin-top:50px;
+    display: flex;
+    gap:30px ;
+}
