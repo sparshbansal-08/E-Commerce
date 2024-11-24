@@ -1,0 +1,21 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  padding-top: 30px;
+  gap: 20px; /* Corrected typo: '2epx' to '20px' */
+  width: 100%;
+  max-width: 250px;
+  height: 100vh; /* Corrected typo: 'Iøevh' to '100vh' */
+  background: white;
+}
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0px 20px; /* Corrected 'øpx' to '0px' */
+  padding: 5px 10px; /* Corrected 'lepx' to '10px' */
+  border-radius: 6px;
+  background: #f6f6f6; /* Corrected 'U#f6f6f6' to '#f6f6f6' */
+  gap: 20px;
+  cursor: pointer; /* Completed the 'cursor' property */
+}
