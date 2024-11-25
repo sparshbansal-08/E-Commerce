@@ -1,0 +1,108 @@
+.list-product {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 1000px;
+    max-width: 1200px;
+    height: auto;
+    padding: 20px 30px;
+    margin: 20px auto;
+    border-radius: 6px;
+    background: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .listproduct-format-main {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    align-items: center;
+    text-align: center;
+    padding: 15px 0;
+    color: #454545;
+    font-size: 15px;
+    font-weight: 600;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .listproduct-format {
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .listproduct-product-icon {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  
+  .listproduct-remove-icon {
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    margin: auto;
+  }
+  
+  .listproduct-allproducts {
+    overflow-y: auto;
+    max-height: 600px; /* Limit height to enable scrolling */
+    width: 100%;
+  }
+  
+  .listproduct-format-main p {
+    margin: 0;
+  }
+  
+  @media (max-width: 800px) {
+    .list-product {
+      padding: 10px 20px;
+    }
+  
+    .listproduct-format-main {
+      grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr 1fr;
+      font-size: 13px;
+    }
+  
+    .listproduct-product-icon {
+      width: 50px;
+      height: 50px;
+    }
+  
+    .listproduct-remove-icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+  
+  @media (max-width: 500px) {
+    .listproduct-format-main {
+      grid-template-columns: 1fr 2fr 1fr 1fr;
+      grid-template-areas:
+        "image title remove"
+        "price price category";
+      font-size: 12px;
+    }
+  
+    .listproduct-format-main img:nth-child(3) {
+      grid-area: remove;
+    }
+  
+    .listproduct-product-icon {
+      grid-area: image;
+    }
+  
+    p:nth-child(2) {
+      grid-area: title;
+    }
+  
+    p:nth-child(3), p:nth-child(4) {
+      grid-area: price;
+    }
+  
+    p:nth-child(5) {
+      grid-area: category;
+    }
+  }
+  

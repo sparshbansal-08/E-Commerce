@@ -108,13 +108,25 @@ app.post("/addproduct", async (req, res) => {
 });
 // creating API for deleting products
 
-app.post("/removeproducts", async (req, res) => {
-  await Product.findOneAndDelete({ id: req.body.id });
-  console.log("Removed");
-  res.json({
-    success: true,
-    name: req.body.name,
-  });
+app.post("/removeproduct", async (req, res) => {
+  console.log("Request to delete product with ID:", req.body.id);
+
+  try {
+    const deletedProduct = await Product.findOneAndDelete({ id: req.body.id });
+
+    if (!deletedProduct) {
+      console.log("Product not found with ID:", req.body.id);
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
+
+    console.log("Product deleted successfully:", deletedProduct);
+    res.json({ success: true, message: "Product removed successfully" });
+  } catch (error) {
+    console.error("Error removing product:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
 });
 
 // creating API for getting all products
