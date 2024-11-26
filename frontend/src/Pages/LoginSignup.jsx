@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./CSS/LoginSignup.css";
 
 const LoginSignup = () => {
+  const [isChecked, setIsChecked] = useState(false);
   const [state, setState] = useState("Login");
 
   const [formData, setFormData] = useState({
@@ -103,9 +104,18 @@ const LoginSignup = () => {
             placeholder="Password"
           />
         </div>
-        <button onClick={() => (state === "Login" ? login() : signup())}>
-          Continue
-        </button>
+        <button 
+  onClick={(e) => {
+    if (!isChecked) {
+      e.preventDefault(); // Prevent form submission
+      alert("You must agree to the terms and conditions.");
+    } else {
+      state === "Login" ? login() : signup();
+    }
+  }}
+>
+  Continue
+</button>
 
         {state === "Sign Up" ? (
           <p className="loginsignup-login">
@@ -118,11 +128,16 @@ const LoginSignup = () => {
             <span onClick={() => setState("Sign Up")}>Click Here</span>
           </p>
         )}
+        
 
-        <div className="loginsignup-agree">
-          <input type="checkbox" />
-          <p>By continuing, I agree to the terms of use & privacy policy.</p>
-        </div>
+<div className="loginsignup-agree">
+        <input 
+          type="checkbox" 
+          checked={isChecked} 
+          onChange={() => setIsChecked(!isChecked)} 
+        />
+        <p>By continuing, I agree to the terms of use & privacy policy.</p>
+      </div>
       </div>
     </div>
   );
