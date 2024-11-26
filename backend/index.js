@@ -215,6 +215,161 @@ app.post("/login", async (req, res) => {
   res.json({ success: true, token });
 });
 
+//creating endpoint for new collection data
+app.get('/newcollections', async (req, res) => {
+  let products = await Product.find({})
+  let newcollection = products.slice(1).slice(-8)
+  console.log("NewCollection Fetched");
+  res.send(newcollection);
+})
+
+//creating endpoint for popular in women section
+
+app.get('/popularinwomen', async (req, res) => {
+  let products = await Product.find({category:"women"})
+  let popular_in_women=products.slice(0,4)
+  
+  console.log("Popular in Women Fetched");
+  res.send(popular_in_women);
+})
+
+//creating middelware to fetch user
+
+const fetchUser = async (req, res, next) => {
+  const token = req.header('auth-token');
+  if (!token) {
+    return res.status(401).send({ errors: "Please authenticate using a valid token" });
+  }
+  try {
+    const data = jwt.verify(token, "secret_ecom");
+    req.user = data.user;
+    console.log("Authenticated user:", req.user); // Debug log
+    next();
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    res.status(401).send({ errors: "Please authenticate using a valid token" });
+  }
+};
+
+
+//creating endpoint for adding products in cartdata
+const addToCart = (itemId) => {
+  if (!localStorage.getItem("auth-token")) return;
+
+  fetch("http://localhost:4000/addtocart", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "auth-token": localStorage.getItem("auth-token"),
+    },
+    body: JSON.stringify({ itemId }),
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error("Failed to add to cart");
+      return response.json();
+    })
+    .then((data) => {
+      if (data.success) {
+        setCartItems((prev) => ({ ...prev, [itemId]: (prev[itemId] || 0) + 1 }));
+      }
+    })
+    .catch((err) => console.error("Error adding to cart:", err));
+};
+
+const removeFromCart = (itemId) => {
+  if (!localStorage.getItem("auth-token")) return;
+
+  fetch("http://localhost:4000/removefromcart", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "auth-token": localStorage.getItem("auth-token"),
+    },
+    body: JSON.stringify({ itemId }),
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error("Failed to remove from cart");
+      return response.json();
+    })
+    .then((data) => {
+      if (data.success) {
+        setCartItems((prev) => {
+          const updatedCart = { ...prev };
+          updatedCart[itemId] = Math.max((updatedCart[itemId] || 0) - 1, 0);
+          if (updatedCart[itemId] === 0) delete updatedCart[itemId];
+          return updatedCart;
+        });
+      }
+    })
+    .catch((err) => console.error("Error removing from cart:", err));
+};
+
+//creating endpoint to remove product from cart
+app.post('/removefromcart', fetchUser, async (req, res) => {
+  try {
+    console.log("Authenticated user ID:", req.user.id);
+
+    // Validate itemId in request body
+    const itemId = req.body.itemId;
+    if (!itemId) {
+      return res.status(400).json({ success: false, message: "Item ID is required" });
+    }
+
+    // Find the user in the database
+    const userData = await Users.findOne({ _id: req.user.id });
+    if (!userData) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Check if cartData exists and the item is in the cart
+    if (!userData.cardData || !userData.cardData[itemId]) {
+      return res.status(400).json({ success: false, message: "Item not found in cart" });
+    }
+
+    // Decrease the quantity or remove the item
+    userData.cardData[itemId] -= 1;
+    if (userData.cardData[itemId] <= 0) {
+      delete userData.cardData[itemId]; // Remove the item if quantity is 0 or less
+    }
+
+    // Update the user's cart data in the database
+    const updateResult = await Users.updateOne(
+      { _id: req.user.id },
+      { $set: { cardData: userData.cardData } }
+    );
+    console.log("Update Result:", updateResult);
+
+    if (updateResult.modifiedCount === 0) {
+      return res.status(400).json({ success: false, message: "Failed to update cart" });
+    }
+
+    res.json({ success: true, message: "Item removed from cart successfully" });
+  } catch (error) {
+    console.error("Error in remove from cart:", error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+});
+
+//creating endpoint to get cart data
+
+app.post('/getcart', fetchUser, async (req, res) => {
+  try {
+    const user = await Users.findById(req.user.id);
+    if (!user) {
+      
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    res.json(user.cardData || {}); // Ensure default object
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
+
+
 
 app.listen(port, (error) => {
   if (!error) {
