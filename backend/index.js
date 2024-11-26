@@ -169,14 +169,16 @@ const Users = mongoose.model("Users", {
 app.post("/signup", async (req, res) => {
   let check = await Users.findOne({ email: req.body.email });
   if (check) {
-    return res.status(400).json({ message: "Email already exists" });
+    return res
+      .status(400)
+      .json({ success: false, message: "Email already exists" });
   }
   let cart = {};
   for (let i = 0; i < 300; i++) {
     cart[i] = 0;
   }
   const user = new Users({
-    username: req.body.name,
+    name: req.body.name,
     email: req.body.email,
     password: req.body.password,
     cardData: cart,
@@ -188,30 +190,31 @@ app.post("/signup", async (req, res) => {
     },
   };
   const token = jwt.sign(data, "secret_ecom");
-  res.json({ message: "User created successfully", token });
+  res.json({ success: true, message: "User created successfully", token });
 });
 
 //creating endpoint for user login
 
-app.post("./login", async (req, res) => {
-  let user = await Users.findOne({ email: req.body.email });
-  if (user) {
-    const passCompare = req.body.password === user.password;
-    if (passCompare) {
-      const data = {
-        user: {
-          id: user.id,
-        },
-      };
-      const token = jwt.sign(data, "secret_ecom");
-      res.json({ sucess: true, token });
-    } else {
-      res.json({ success: false, errors: "wrong password" });
-    }
-  } else {
-    res.json({ success: false, errors: "wrong email" });
+app.post("/login", async (req, res) => {
+  const user = await Users.findOne({ email: req.body.email });
+  if (!user) {
+    return res.json({ success: false, errors: "Email not registered" });
   }
+
+  const passCompare = req.body.password === user.password;
+  if (!passCompare) {
+    return res.json({ success: false, errors: "Incorrect password" });
+  }
+
+  const data = {
+    user: {
+      id: user._id, // Ensure this references the MongoDB `_id`
+    },
+  };
+  const token = jwt.sign(data, "secret_ecom");
+  res.json({ success: true, token });
 });
+
 
 app.listen(port, (error) => {
   if (!error) {
