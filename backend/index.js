@@ -13,9 +13,12 @@ app.use(express.json());
 app.use(cors());
 
 // Database connection with mongodb
-mongoose.connect(
-  "mongodb+srv://sparshbansal:sparshbansal@cluster0.vlyh2.mongodb.net/Ecommerce"
-);
+mongoose
+  .connect(
+    "mongodb+srv://sparshbansal:sparshbansal@cluster0.vlyh2.mongodb.net/Ecommerce"
+  )
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("Connection error:", err));
 // API Creation
 
 app.get("/", (req, res) => {
@@ -134,6 +137,80 @@ app.get("/allproducts", async (req, res) => {
   let products = await Product.find({});
   console.log("All Products Fetched");
   res.send(products);
+});
+
+//Shema creating for user model
+const Users = mongoose.model("Users", {
+  name: {
+    type: String,
+    required: true, // Make this field mandatory
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true, // Ensure email is unique
+    match: [/.+@.+\..+/, "Please enter a valid email address"], // Validation for email format
+  },
+  password: {
+    type: String,
+    required: true, // Make this field mandatory
+    minlength: 6, // Set a minimum password length
+  },
+  cardData: {
+    type: Object,
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+//creating endpoint for registering the user
+app.post("/signup", async (req, res) => {
+  let check = await Users.findOne({ email: req.body.email });
+  if (check) {
+    return res.status(400).json({ message: "Email already exists" });
+  }
+  let cart = {};
+  for (let i = 0; i < 300; i++) {
+    cart[i] = 0;
+  }
+  const user = new Users({
+    username: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+    cardData: cart,
+  });
+  await user.save();
+  const data = {
+    user: {
+      id: user._id,
+    },
+  };
+  const token = jwt.sign(data, "secret_ecom");
+  res.json({ message: "User created successfully", token });
+});
+
+//creating endpoint for user login
+
+app.post("./login", async (req, res) => {
+  let user = await Users.findOne({ email: req.body.email });
+  if (user) {
+    const passCompare = req.body.password === user.password;
+    if (passCompare) {
+      const data = {
+        user: {
+          id: user.id,
+        },
+      };
+      const token = jwt.sign(data, "secret_ecom");
+      res.json({ sucess: true, token });
+    } else {
+      res.json({ success: false, errors: "wrong password" });
+    }
+  } else {
+    res.json({ success: false, errors: "wrong email" });
+  }
 });
 
 app.listen(port, (error) => {
